@@ -67,8 +67,8 @@ func main() {
 	args := flag.Args()
 	if len(args) == 0 {
 		fmt.Println("usage: gt <command>, gt -h")
+		os.Exit(1)
 	}
-
 	fmt.Println(args)
 	mode := args[0]
 	switch mode {
