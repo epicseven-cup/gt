@@ -5,6 +5,9 @@ Git tool that stream line commit management and history
 1. You will need to install go on your machine: https://go.dev/doc/install
 2. Setup GOPATH
 
+# How to use
+placeholder
+
 Add the following to your shell config
 ```bash
 export PATH=${PATH}:$HOME/go/bin
