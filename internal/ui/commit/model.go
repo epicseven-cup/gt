@@ -1,6 +1,7 @@
 package commit
 
 import (
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/epicseven-cup/gt/internal/cache"
 	"log"
@@ -45,7 +46,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 func (m Model) View() string {
-	return m.ViewController.Render()
+	v := m.ViewController.Render()
+	h := "[ctrl+q] for quit, [ctrl+y] for accept / finish"
+	return fmt.Sprintf("%s\n\n%s", v, h)
 }
 
 func NewModel(projectName string) (Model, error) {
