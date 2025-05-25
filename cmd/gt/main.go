@@ -83,10 +83,11 @@ func main() {
 			return
 		}
 	default:
-		err := exec.Command("git", args...).Run()
+		out, err := exec.Command("git", args...).Output()
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println(string(out))
 	}
 }

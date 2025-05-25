@@ -3,6 +3,8 @@ package commit
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/epicseven-cup/gt/internal/cache"
+	"log"
+	"os/exec"
 )
 
 type Model struct {
@@ -19,18 +21,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			return m, tea.Quit
-
 		case "enter":
 			m.ViewController.NextStage()
 			return m, nil
+		case "ctrl+y":
+			err := m.commit()
+			if err != nil {
+				log.Fatal(err)
+				return m, tea.Quit
+			}
+			return m, tea.Quit
+
 		}
 
 	default:
 		return m, nil
 	}
-	return m, nil
+
+	tm, cmd := m.ViewController.Update(msg)
+	m.ViewController.SetCurrentStageContent(tm)
+	return m, cmd
 }
 func (m Model) View() string {
 	return m.ViewController.Render()
@@ -48,4 +60,14 @@ func NewModel(projectName string) (Model, error) {
 		Cache:          c,
 		Commit:         "",
 	}, nil
+}
+
+func (m Model) commit() error {
+	m.Commit = m.ViewController.OutputContent()
+	out, err := exec.Command("git", "commit", "-m", "Hello").Output()
+	if err != nil {
+		return err
+	}
+	m.ViewController.content = string(out)
+	return nil
 }
