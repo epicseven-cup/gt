@@ -1,11 +1,14 @@
 package commit
 
 import (
-	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/epicseven-cup/gt/internal/cache"
 )
 
 type Model struct {
+	ViewController *ViewController
+	Cache          *cache.Cache
+	Commit         string
 }
 
 func (m Model) Init() tea.Cmd {
@@ -18,16 +21,31 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
+
+		case "enter":
+			m.ViewController.NextStage()
+			return m, nil
 		}
+
 	default:
 		return m, nil
 	}
 	return m, nil
 }
 func (m Model) View() string {
-	return fmt.Sprintf("")
+	return m.ViewController.Render()
 }
 
-func NewModel() Model {
-	return Model{}
+func NewModel(projectName string) (Model, error) {
+
+	c, err := cache.NewCache(projectName)
+	if err != nil {
+		return Model{}, err
+	}
+	v := NewView()
+	return Model{
+		ViewController: v,
+		Cache:          c,
+		Commit:         "",
+	}, nil
 }

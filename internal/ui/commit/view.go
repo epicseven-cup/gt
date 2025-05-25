@@ -1,21 +1,79 @@
 package commit
 
-type View struct {
-	headers []string
-	content string
+import (
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/lipgloss"
+)
+
+type ContentDisplay interface {
+	View() string
+	Reset()
 }
 
-func NewView() *View {
-	return &View{
-		content: "",
+type ViewController struct {
+	content string
+	stages  []ContentDisplay
+	current int
+}
+
+func NewView() *ViewController {
+	header := textinput.New()
+	header.Prompt = "Header >>> "
+	header.Width = 80
+	header.CharLimit = 128
+	header.PromptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("32"))
+	header.Cursor.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	header.Focus()
+
+	title := textinput.New()
+	title.Prompt = "Title >>>"
+	title.Width = 80
+	title.CharLimit = 128
+	title.PromptStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	title.Cursor.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	title.Focus()
+
+	body := textarea.New()
+	body.Prompt = "Body >>>"
+	body.ShowLineNumbers = true
+	body.Focus()
+
+	return &ViewController{
+		content: "PLACEHOLDER",
+		stages: []ContentDisplay{
+			&header,
+			&title,
+			&body,
+		},
+		current: 0,
 	}
 }
 
-func (v *View) SelectHeader() error {
-
-	return nil
+func (v *ViewController) Render() string {
+	return v.content
 }
 
-func (v *View) Render() string {
-	return v.content
+func (v *ViewController) NextStage() {
+	v.current = (v.current + 1) % len(v.stages)
+	v.content = v.stages[v.current].View()
+}
+
+func (v *ViewController) PreviousStage() {
+	v.current = (v.current - 1) % len(v.stages)
+	v.content = v.stages[v.current].View()
+}
+
+func (v *ViewController) Reset() {
+	v.current = 0
+	v.content = v.stages[v.current].View()
+}
+
+func (v *ViewController) OutputContent() string {
+	c := ""
+	for _, stage := range v.stages {
+		c += stage.View() + "\n"
+		stage.Reset()
+	}
+	return c
 }
