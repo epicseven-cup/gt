@@ -80,13 +80,13 @@ func main() {
 		err := gtCommit(mode, args[1:])
 		if err != nil {
 			fmt.Println(err)
-			return
+			os.Exit(1)
 		}
 	default:
 		out, err := exec.Command("git", args...).Output()
 		if err != nil {
 			fmt.Println(err)
-			return
+			os.Exit(1)
 		}
 		fmt.Println(string(out))
 	}

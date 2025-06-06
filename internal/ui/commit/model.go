@@ -67,7 +67,7 @@ func NewModel(projectName string) (Model, error) {
 
 func (m Model) commit() error {
 	m.Commit = m.ViewController.OutputContent()
-	out, err := exec.Command("git", "commit", "-m", "Hello").Output()
+	out, err := exec.Command("git", "commit", "-m", m.Commit).Output()
 	if err != nil {
 		return err
 	}

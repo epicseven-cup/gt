@@ -2,7 +2,9 @@ package cache
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
+	"path/filepath"
 )
 
 const BasePath = "~/.gt/cache"
@@ -16,26 +18,26 @@ type Cache struct {
 }
 
 func NewCache(projectName string) (*Cache, error) {
-	//_, err := os.Stat(BasePath)
-	//if errors.Is(err, os.ErrNotExist) {
-	//	err = os.Mkdir(BasePath, 0755)
-	//}
-	//if err != nil {
-	//	return nil, err
-	//}
-	//configPath := filepath.Join(BasePath, projectName+".json")
-	//data, err := os.ReadFile(configPath)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//cache := &Cache{}
-	//// Since the Path in the json is optional, this will just gives it a default value, just in case the path does not exist in the json
-	//cache.Path = configPath
-	//err = json.Unmarshal(data, cache)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return cache, nil
+	_, err := os.Stat(BasePath)
+	if errors.Is(err, os.ErrNotExist) {
+		err = os.Mkdir(BasePath, 0755)
+	}
+	if err != nil {
+		return nil, err
+	}
+	configPath := filepath.Join(BasePath, projectName+".json")
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+	cache := &Cache{}
+	// Since the Path in the json is optional, this will just gives it a default value, just in case the path does not exist in the json
+	cache.Path = configPath
+	err = json.Unmarshal(data, cache)
+	if err != nil {
+		return nil, err
+	}
+	return cache, nil
 
 	return nil, nil
 }
