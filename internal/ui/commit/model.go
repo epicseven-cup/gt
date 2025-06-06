@@ -28,11 +28,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.ViewController.NextStage()
 			return m, nil
 		case "ctrl+y":
-			err := m.commit()
-			if err != nil {
-				log.Fatal(err)
-				return m, tea.Quit
-			}
+			go func() {
+				err := m.commit()
+				if err != nil {
+					log.Fatal(err)
+				}
+			}()
 			return m, tea.Quit
 
 		}
@@ -53,7 +54,7 @@ func (m Model) View() string {
 
 func NewModel(projectName string) (Model, error) {
 
-	c, err := cache.NewCache(projectName)
+	c, err := cache.GetCache(projectName)
 	if err != nil {
 		return Model{}, err
 	}
@@ -67,6 +68,7 @@ func NewModel(projectName string) (Model, error) {
 
 func (m Model) commit() error {
 	m.Commit = m.ViewController.OutputContent()
+
 	out, err := exec.Command("git", "commit", "-m", m.Commit).Output()
 	if err != nil {
 		return err
